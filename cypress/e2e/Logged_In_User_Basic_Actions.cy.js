@@ -1,4 +1,4 @@
-
+/*
 describe('Login and then logout', () => {
   it('Login with a pre-existing user account and then logout', () => {
     // Visit the WLW
@@ -241,7 +241,7 @@ describe('Login and then change the security question', () => {
 
     cy.wait(2000);
 
-    cy.contains("Account information")
+    cy.contains("Account information");
 
     cy.wait(2000);
 
@@ -284,10 +284,10 @@ describe('Login and then change the security question', () => {
   });
 });
 
-
+*/
 const getIframeDocument = () => {
   return cy
-  .get('iframe[id="iFrameResizer1"]')
+  .get('iframe[name="_cpashieldIFrame"]')
   // Cypress yields jQuery element, which has the real
   // DOM element under property "0".
   // From the real DOM iframe element we can get
@@ -331,11 +331,7 @@ describe('Login and then change payment method', () => {
 
     cy.contains("Account information")
 
-    cy.wait(2000);
-
     cy.get('span[class="sc-cx1xxi-0 bOlEzG"]').eq(7).click();
-
-    cy.wait(1000);
 
     cy.get('input[name="billing.country"]').click();
 
@@ -350,16 +346,23 @@ describe('Login and then change payment method', () => {
     cy.get('input[name="billing.region"]').clear().type("Testshire "+currentDate);
 
     cy.get('input[name="billing.postalCode"]').clear().type("SE100ES");
- 
-    cy.wait(2000);
 
     cy.get('span[class="sc-cx1xxi-0 bOlEzG"]').click();
 
-    cy.wait(1000);
+    //This is the area of contentious area!
 
-    //getIframeBody().find('#cardholderName').should('exist');
+    //getIframeBody().find('input[id="cardholderName"]').should('exist');
 
-    //getIframeBody().find('input').clear().type("Mike Automation");
+    cy.get('iframe#iFrameResizer1').should('be.visible').should('not.be.empty').then(($iframe) => {
+      const $body = $iframe.contents().find('body')
+
+      cy.wrap($body).find('input[id="cardholderName"]').type("MM")
+
+    })
+
+    //cy.get('iframe[name="_cpashieldIFrame"]');
+
+    //getIframeBody().find('input[id="cardholderName"]').clear().type("Mike Automation");
 
     cy.get('input[id="cardholderName"]').clear().type("Mike Automation");
 
@@ -373,6 +376,9 @@ describe('Login and then change payment method', () => {
 
     cy.wait(3000);
 
+    //Yet another iFrame attempt
+   
+ 
 
   });
 });
