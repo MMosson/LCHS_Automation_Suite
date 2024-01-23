@@ -1,0 +1,15 @@
+{
+  "WLW":"https://e-wlw-test.cubic-hub.com/",
+  "WLW_Username": "testuser100523@cubic.com",
+  "WLW_Password": "Password1",
+  "Visa_Frictionless": "",
+  "Mastercard_Frictionless": "",
+  "Amex_Frictionless": "",
+  "Visa_Challenge": "",
+  "Mastercard_Challenge": "",
+  "Amex_Challenge": "",
+  "Visa_Declined": "",
+  "Mastercard_Declined": "",
+  "Amex_Declined": ""
+
+}

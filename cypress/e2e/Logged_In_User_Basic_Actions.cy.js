@@ -1,8 +1,10 @@
-/*
+
 describe('Login and then logout', () => {
   it('Login with a pre-existing user account and then logout', () => {
     // Visit the WLW
-    cy.visit('https://e-wlw-test.cubic-hub.com/');
+    cy.visit('https://e-wlw-test.cubic-hub.com/');//CHANGED TO ENV A
+
+    //This
 
     //Need to add this because lyft devs are useless
     Cypress.on('uncaught:exception', (err, runnable) => {
@@ -22,7 +24,7 @@ describe('Login and then logout', () => {
 
     cy.wait(2000);
 
-    cy.get('button[class="LinkStyleButton-sc-128l2m9-0 dIteZj"]').click();
+    cy.contains("Log in").click();
 
     cy.wait(1500);
 
@@ -62,7 +64,6 @@ describe('Login and change password', () => {
     cy.get('Input[id="confirmNewPassword__field"]').type("Password1!");
 
     cy.contains("Save").click();
-
     
     cy.contains("Change password").click();
 
@@ -284,7 +285,6 @@ describe('Login and then change the security question', () => {
   });
 });
 
-*/
 const getIframeDocument = () => {
   return cy
   .get('iframe[name="_cpashieldIFrame"]')
@@ -307,7 +307,7 @@ const getIframeBody = () => {
   .then(cy.wrap)
 }
 
-describe('Login and then change payment method', () => {
+describe('[VISA] Login and then successfully change payment method', () => {
   it('Login with a pre-existing user account and then change the payment card associated with the account', () => {
 
     const currentDate = new Date().toISOString().replace(/[\-\.\:ZT]/g,"").substr(2,10);
@@ -335,7 +335,7 @@ describe('Login and then change payment method', () => {
 
     cy.get('input[name="billing.country"]').click();
 
-    cy.get('ul li:first').click();
+    //cy.get('ul li:first').click();
  
     cy.get('input[name="billing.addressLine1"]').clear().type("10");
 
@@ -352,32 +352,193 @@ describe('Login and then change payment method', () => {
     //This is the area of contentious area!
 
     //getIframeBody().find('input[id="cardholderName"]').should('exist');
+    cy.get('svg[class="core-ui-rtl-animation"]',{ timeout: 10000 }).should('be.visible'); //wait for loading spinner to appear
+ 
+    cy.get('svg[class="core-ui-rtl-animation"]', { timeout: 10000 }).should('not.exist'); //wait for it to disappear
+ 
+    cy.get('iframe[id="iFrameResizer1"]').then(($ifrom) =>{
+      const doc = $ifrom.contents()
+      cy.wrap(doc.find("#cardholderName")).type('MM Automation')
+      cy.wrap(doc.find("#email")).clear().type('testuser100523@cubic.com')
+      cy.wrap(doc.find("#ccNumber")).clear().type('4929400427277506')
+      cy.wait(1000);
 
-    cy.get('iframe#iFrameResizer1').should('be.visible').should('not.be.empty').then(($iframe) => {
-      const $body = $iframe.contents().find('body')
+      cy.wrap(doc.find('#ccExpMonth')).select('12').should('have.value', '12')
+      cy.wrap(doc.find('#ccExpYear')).select('28').should('have.value', '28')
 
-      cy.wrap($body).find('input[id="cardholderName"]').type("MM")
+      //Not working for click when wrapped in iFrame
+      //cy.wrap(doc.find('#ccExpMonth')).type('{downArrow}{downArrow}{enter}')
+      //cy.wrap(doc.find('#ccExpMonth')).type('01 [Jan]')
+      //cy.wrap(doc.find('#ccExpMonth')).select('option').eq(1)
+      //cy.wrap(doc.find('option[value="12"]')).select()
+      //cy.wrap(doc.get("#ccExpYear")).click()
+      //cy.wrap(doc.get('option[value="25"]')).click()
+      
+      cy.wrap(doc.find("#cardCvv2")).type('000')
 
+      cy.wrap(doc.find("#_submit")).click()
+      
     })
 
-    //cy.get('iframe[name="_cpashieldIFrame"]');
+    cy.wait(20000)
+ 
 
-    //getIframeBody().find('input[id="cardholderName"]').clear().type("Mike Automation");
+  });
+});
 
-    cy.get('input[id="cardholderName"]').clear().type("Mike Automation");
+describe('[MASTERCARD] Login and then successfully change payment method', () => {
+  it('Login with a pre-existing user account and then change the payment card associated with the account', () => {
 
-    cy.get('input[id="email"]').clear().type("TestUser100523@cubic.com");
+    const currentDate = new Date().toISOString().replace(/[\-\.\:ZT]/g,"").substr(2,10);
 
-    cy.get('input[id="ccNumber"]').clear().type("5434581463325351");
+    // Visit the WLW
+    cy.visit('https://e-wlw-test.cubic-hub.com/');
 
-    cy.get('select [id="ccExpMonth"]').click();
+    //Need to add this because lyft devs are useless
+    Cypress.on('uncaught:exception', (err, runnable) => {
+      // returning false here prevents Cypress from failing the test
+      return false
+    })
 
-    cy.get('ul li:last').eq(0).click();
+    cy.get('input[name="bssUsername"]').type('testuser100523@cubic.com');
+  
+    cy.get('input[name="bssPassword"]').type('Password1');
 
-    cy.wait(3000);
+    cy.get('button[type="Submit"]').click();
 
-    //Yet another iFrame attempt
-   
+    cy.wait(2000);
+
+    cy.contains("Account information")
+
+    cy.get('span[class="sc-cx1xxi-0 bOlEzG"]').eq(7).click();
+
+    cy.get('input[name="billing.country"]').click();
+
+    //cy.get('ul li:first').click();
+ 
+    cy.get('input[name="billing.addressLine1"]').clear().type("10");
+
+    cy.get('input[name="billing.addressLine2"]').clear().type("Test Street "+currentDate);
+
+    cy.get('input[name="billing.city"]').clear().type("City "+currentDate);
+ 
+    cy.get('input[name="billing.region"]').clear().type("Testshire "+currentDate);
+
+    cy.get('input[name="billing.postalCode"]').clear().type("SE100ES");
+
+    cy.get('span[class="sc-cx1xxi-0 bOlEzG"]').click();
+
+    //This is the area of contentious area!
+
+    //getIframeBody().find('input[id="cardholderName"]').should('exist');
+    cy.get('svg[class="core-ui-rtl-animation"]',{ timeout: 10000 }).should('be.visible'); //wait for loading spinner to appear
+ 
+    cy.get('svg[class="core-ui-rtl-animation"]', { timeout: 10000 }).should('not.exist'); //wait for it to disappear
+ 
+    cy.get('iframe[id="iFrameResizer1"]').then(($ifrom) =>{
+      const doc = $ifrom.contents()
+      cy.wrap(doc.find("#cardholderName")).type('MM Automation')
+      cy.wrap(doc.find("#email")).clear().type('testuser100523@cubic.com')
+      cy.wrap(doc.find("#ccNumber")).clear().type('4929400427277506')
+      cy.wait(1000);
+
+      cy.wrap(doc.find('#ccExpMonth')).select('12').should('have.value', '12')
+      cy.wrap(doc.find('#ccExpYear')).select('28').should('have.value', '28')
+
+      //Not working for click when wrapped in iFrame
+      //cy.wrap(doc.find('#ccExpMonth')).type('{downArrow}{downArrow}{enter}')
+      //cy.wrap(doc.find('#ccExpMonth')).type('01 [Jan]')
+      //cy.wrap(doc.find('#ccExpMonth')).select('option').eq(1)
+      //cy.wrap(doc.find('option[value="12"]')).select()
+      //cy.wrap(doc.get("#ccExpYear")).click()
+      //cy.wrap(doc.get('option[value="25"]')).click()
+      
+      cy.wrap(doc.find("#cardCvv2")).type('000')
+
+      cy.wrap(doc.find("#_submit")).click()
+      
+    })
+
+    cy.wait(20000)
+ 
+
+  });
+});
+
+describe('[AMEX] Login and then successfully change payment method', () => {
+  it('Login with a pre-existing user account and then change the payment card associated with the account', () => {
+
+    const currentDate = new Date().toISOString().replace(/[\-\.\:ZT]/g,"").substr(2,10);
+
+    // Visit the WLW
+    cy.visit('https://e-wlw-test.cubic-hub.com/');
+
+    //Need to add this because lyft devs are useless
+    Cypress.on('uncaught:exception', (err, runnable) => {
+      // returning false here prevents Cypress from failing the test
+      return false
+    })
+
+    cy.get('input[name="bssUsername"]').type('testuser100523@cubic.com');
+  
+    cy.get('input[name="bssPassword"]').type('Password1');
+
+    cy.get('button[type="Submit"]').click();
+
+    cy.wait(2000);
+
+    cy.contains("Account information")
+
+    cy.get('span[class="sc-cx1xxi-0 bOlEzG"]').eq(7).click();
+
+    cy.get('input[name="billing.country"]').click();
+
+    //cy.get('ul li:first').click();
+ 
+    cy.get('input[name="billing.addressLine1"]').clear().type("10");
+
+    cy.get('input[name="billing.addressLine2"]').clear().type("Test Street "+currentDate);
+
+    cy.get('input[name="billing.city"]').clear().type("City "+currentDate);
+ 
+    cy.get('input[name="billing.region"]').clear().type("Testshire "+currentDate);
+
+    cy.get('input[name="billing.postalCode"]').clear().type("SE100ES");
+
+    cy.get('span[class="sc-cx1xxi-0 bOlEzG"]').click();
+
+    //This is the area of contentious area!
+
+    //getIframeBody().find('input[id="cardholderName"]').should('exist');
+    cy.get('svg[class="core-ui-rtl-animation"]',{ timeout: 10000 }).should('be.visible'); //wait for loading spinner to appear
+ 
+    cy.get('svg[class="core-ui-rtl-animation"]', { timeout: 10000 }).should('not.exist'); //wait for it to disappear
+ 
+    cy.get('iframe[id="iFrameResizer1"]').then(($ifrom) =>{
+      const doc = $ifrom.contents()
+      cy.wrap(doc.find("#cardholderName")).type('MM Automation')
+      cy.wrap(doc.find("#email")).clear().type('testuser100523@cubic.com')
+      cy.wrap(doc.find("#ccNumber")).clear().type('4929400427277506')
+      cy.wait(1000);
+
+      cy.wrap(doc.find('#ccExpMonth')).select('12').should('have.value', '12')
+      cy.wrap(doc.find('#ccExpYear')).select('28').should('have.value', '28')
+
+      //Not working for click when wrapped in iFrame
+      //cy.wrap(doc.find('#ccExpMonth')).type('{downArrow}{downArrow}{enter}')
+      //cy.wrap(doc.find('#ccExpMonth')).type('01 [Jan]')
+      //cy.wrap(doc.find('#ccExpMonth')).select('option').eq(1)
+      //cy.wrap(doc.find('option[value="12"]')).select()
+      //cy.wrap(doc.get("#ccExpYear")).click()
+      //cy.wrap(doc.get('option[value="25"]')).click()
+      
+      cy.wrap(doc.find("#cardCvv2")).type('000')
+
+      cy.wrap(doc.find("#_submit")).click()
+      
+    })
+
+    cy.wait(20000)
  
 
   });
