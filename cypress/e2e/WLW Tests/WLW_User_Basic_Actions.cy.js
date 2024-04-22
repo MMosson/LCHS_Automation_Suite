@@ -24,7 +24,7 @@ describe('Login and then logout', () => {
 
     cy.wait(2000);
 
-    cy.contains("Log in").click();
+    cy.contains("Logout").click();
 
     cy.wait(1500);
 
@@ -119,7 +119,7 @@ describe('Login and change details', () => {
 describe('Login and then change notification preferences', () => {
   it('Login with a pre-existing user account and change Notification Preferences', () => {
     // Visit the WLW
-    cy.visit('https://e-wlw-test.cubic-hub.com/');
+    cy.visit('https://a-wlw-test.cubic-hub.com/');
 
     //Need to add this because lyft devs are useless
     Cypress.on('uncaught:exception', (err, runnable) => {
@@ -360,7 +360,7 @@ describe('[VISA] Login and then successfully change payment method', () => {
       const doc = $ifrom.contents()
       cy.wrap(doc.find("#cardholderName")).type('MM Automation')
       cy.wrap(doc.find("#email")).clear().type('testuser100523@cubic.com')
-      cy.wrap(doc.find("#ccNumber")).clear().type('4929400427277506')
+      cy.wrap(doc.find("#ccNumber")).clear().type('4137737951664601')//4929400427277506, 371783550432241
       cy.wait(1000);
 
       cy.wrap(doc.find('#ccExpMonth')).select('12').should('have.value', '12')
